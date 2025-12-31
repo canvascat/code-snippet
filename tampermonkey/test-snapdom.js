@@ -11,6 +11,7 @@
 // @icon         https://snapdom.dev/assets/favicon/favicon.ico
 // @grant        GM_registerMenuCommand
 // @require      https://unpkg.com/@zumer/snapdom/dist/snapdom.js
+// @license      AGPL-3.0
 // ==/UserScript==
 
 (function () {
