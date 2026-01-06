@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         snapdom test
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-05
+// @version      2026-01-06
 // @description  ʕ•ᴥ•ʔ Capture page DOM snapshot using snapdom
 // @author       canvascat@qq.cn
 // @match        https://*.antgroup.com/*
@@ -10,7 +10,7 @@
 // @match        https://localhost:*/*
 // @icon         https://snapdom.dev/assets/favicon/favicon.ico
 // @grant        GM_registerMenuCommand
-// @require      https://unpkg.com/@zumer/snapdom/dist/snapdom.js
+// @require      https://unpkg.com/@zumer/snapdom@dev/dist/snapdom.js
 // @license      AGPL-3.0
 // ==/UserScript==
 
@@ -601,20 +601,13 @@
     }
 
     patchControllButton() {
+      const firstChild = this.buttonGroup.firstChild;
       // 扩大按钮
-
       this.expandButton = document.createElement("button");
       this.expandButton.type = "button";
       this.expandButton.textContent = "扩大";
       this.expandButton.className = "expand-button";
-      this.expandButton.disabled = !canExpand;
-      this.expandButton.addEventListener("click", () =>
-        this._handleExpand(onExpand, onShrink, canExpand, canShrink)
-      );
-      this.buttonGroup.insertBefore(
-        this.expandButton,
-        this.buttonGroup.firstChild
-      );
+      this.buttonGroup.insertBefore(this.expandButton, firstChild);
 
       // 缩小按钮
 
@@ -622,94 +615,8 @@
       this.shrinkButton.type = "button";
       this.shrinkButton.textContent = "缩小";
       this.shrinkButton.className = "shrink-button";
-      this.shrinkButton.disabled = !canShrink;
-      this.shrinkButton.addEventListener("click", () =>
-        this._handleShrink(onShrink, onExpand, canExpand, canShrink)
-      );
-      this.buttonGroup.insertBefore(
-        this.shrinkButton,
-        this.buttonGroup.lastChild
-      );
-    }
-
-    /**
-     * 处理扩大按钮点击
-     * @private
-     * @param {Function} onExpand - 扩大回调
-     * @param {Function | null} onShrink - 缩小回调
-     * @param {boolean} canExpand - 是否可以扩大
-     * @param {boolean} canShrink - 是否可以缩小
-     */
-    async _handleExpand(onExpand, onShrink, canExpand, canShrink) {
-      if (!canExpand) return;
-
-      // 显示加载遮罩
-      this.showLoading();
-      this.expandButton.disabled = true;
-      if (this.shrinkButton) this.shrinkButton.disabled = true;
-
-      try {
-        const expandPromise = onExpand();
-        if (expandPromise) {
-          await expandPromise;
-        }
-
-        // 获取当前输入值
-        const currentFilename =
-          this.filenameInput.value.trim() || this.defaultFilename;
-        const currentFormat = this.formatSelect.value;
-
-        this._closeAndResolve({
-          action: "expand",
-          filename: currentFilename,
-          format: currentFormat,
-        });
-      } catch {
-        // 隐藏加载遮罩
-        this.hideLoading();
-        this.expandButton.disabled = !canExpand;
-        if (this.shrinkButton) this.shrinkButton.disabled = !canShrink;
-      }
-    }
-
-    /**
-     * 处理缩小按钮点击
-     * @private
-     * @param {Function} onShrink - 缩小回调
-     * @param {Function | null} onExpand - 扩大回调
-     * @param {boolean} canExpand - 是否可以扩大
-     * @param {boolean} canShrink - 是否可以缩小
-     */
-    async _handleShrink(onShrink, onExpand, canExpand, canShrink) {
-      if (!canShrink) return;
-
-      // 显示加载遮罩
-      this.showLoading();
       this.shrinkButton.disabled = true;
-      if (this.expandButton) this.expandButton.disabled = true;
-
-      try {
-        const shrinkPromise = onShrink();
-        if (shrinkPromise) {
-          await shrinkPromise;
-        }
-
-        // 获取当前输入值
-        const currentFilename =
-          this.filenameInput.value.trim() || this.defaultFilename;
-        const currentFormat = this.formatSelect.value;
-
-        this._closeAndResolve({
-          action: "shrink",
-          filename: currentFilename,
-          format: currentFormat,
-        });
-      } catch {
-        // 隐藏加载遮罩
-        this.hideLoading();
-        this.shrinkButton.disabled = !canShrink;
-        if (this.expandButton) this.expandButton.disabled = !canExpand;
-      }
+      this.buttonGroup.insertBefore(this.shrinkButton, firstChild);
     }
 
     /**
@@ -768,20 +675,6 @@
     hideLoading() {
       if (this.loadingOverlay) {
         this.loadingOverlay.classList.remove("active");
-      }
-    }
-
-    /**
-     * 更新按钮状态
-     * @param {boolean} canExpand - 是否可以扩大
-     * @param {boolean} canShrink - 是否可以缩小
-     */
-    updateButtonStates(canExpand, canShrink) {
-      if (this.expandButton) {
-        this.expandButton.disabled = !canExpand;
-      }
-      if (this.shrinkButton) {
-        this.shrinkButton.disabled = !canShrink;
       }
     }
 
